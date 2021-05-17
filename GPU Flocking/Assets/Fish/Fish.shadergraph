@@ -431,7 +431,23 @@
         }
     ],
     "m_Groups": [],
-    "m_StickyNotes": [],
+    "m_StickyNotes": [
+        {
+            "m_GuidSerialized": "6f8eef79-b470-46f5-837b-775b2cf6dec9",
+            "m_Title": "Reference",
+            "m_Content": "This shader graph was made following the tutorial by DitzelGames found in https://www.youtube.com/watch?v=iUCGYBVX2wA",
+            "m_TextSize": 2,
+            "m_Theme": 0,
+            "m_Position": {
+                "serializedVersion": "2",
+                "x": -838.0,
+                "y": -845.0,
+                "width": 1183.0,
+                "height": 289.53460693359377
+            },
+            "m_GroupGuidSerialized": "00000000-0000-0000-0000-000000000000"
+        }
+    ],
     "m_SerializableEdges": [
         {
             "typeInfo": {

@@ -1,6 +1,8 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿/**
+* This script is based on the "Flocking AI Algorithm in Unity Tutorial" by GameDevChef which can be found in:
+* https://www.youtube.com/watch?v=mBVarJm3Tgk
+*
+**/
 using UnityEngine;
 
 public class Flock : MonoBehaviour
