@@ -1,6 +1,7 @@
 ﻿#if defined(UNITY_PROCEDURAL_INSTANCING_ENABLED)
 	struct FlockUnit
 	{
+		float3 flockPosition;
 		float3 position;
 		float3 forward;
 		float4 rotation;

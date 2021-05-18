@@ -3,6 +3,7 @@
 
 struct FlockUnit
 {
+    float3 flockPosition;
     float3 position;
     float3 forward;
     float4 rotation;
@@ -13,7 +14,8 @@ float3 currentVelocity;
 float speed;
 
 RWStructuredBuffer<FlockUnit> _flockUnitBuffer;
-float _Time, _cohesionDistance, _FOVAngle, _cohesionWeight, _smoothDamp, _minSpeed, _maxSpeed, _avoidanceDistance, _avoidanceWeight;
+float _Time, _cohesionDistance, _FOVAngle, _cohesionWeight, _smoothDamp, _minSpeed, _maxSpeed;
+float _avoidanceDistance, _avoidanceWeight, _alignmentDistance, _alignmentWeight, _boundsDistance, _boundsWeight;
 uint _flockSize;
 
 bool IsInFOV(float3 position, uint3 id)
@@ -24,7 +26,7 @@ bool IsInFOV(float3 position, uint3 id)
 [numthreads(256,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    //COHESION, AVOIDANCE, ALIGNMENT 
+    //COHESION, AVOIDANCE, ALIGNMENT
     float3 cohesion = float3(0.0, 0.0, 0.0);
     float3 avoidance = float3(0.0, 0.0, 0.0);
     float3 alignment = float3(0.0, 0.0, 1.0);
@@ -33,6 +35,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
     float cohesionNeighbors = 0.0;
     float avoidanceNeighbors = 0.0;
+    float alignmentNeighbors = 0.0;
 
     //CHECK NEIGHBORS
     for (uint i = 0; i < _flockSize; i++)
@@ -51,6 +54,12 @@ void CSMain (uint3 id : SV_DispatchThreadID)
             avoidanceNeighbors++;
             avoidance += _flockUnitBuffer[id.x].position - _flockUnitBuffer[i].position;
         }
+        //ALIGNMENT NEIGHBORS
+        if (currentNeighborDistanceSqr <= _alignmentDistance * _alignmentDistance && IsInFOV(_flockUnitBuffer[i].position, id))
+        {
+            alignmentNeighbors++;
+            alignment += _flockUnitBuffer[i].forward;
+        }
     }
 
     //CALCULATE SPEED
@@ -64,13 +73,27 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     cohesion *= _cohesionWeight;
 
     //CALCULATE AVOIDANCE
-    avoidance /= avoidanceNeighbors++;
+    avoidance /= avoidanceNeighbors;
     avoidance = Normalize(avoidance);
     avoidance *= _avoidanceWeight;
 
+    //CALCULATE ALIGNMENT
+    if (alignmentNeighbors > 0.0)
+    {
+        alignment /= alignmentNeighbors;
+        alignment = Normalize(alignment);
+    }
+    alignment *= _alignmentWeight;
+
+    //CALCULATE BOUNDS
+    float3 bounds = float3(0.0, 0.0, 0.0);
+    float3 offsetToCenter = _flockUnitBuffer[id.x].flockPosition - _flockUnitBuffer[id.x].position;
+    if (Magnitude(offsetToCenter) >= _boundsDistance * 0.9)
+        bounds = Normalize(offsetToCenter);
+    bounds *= _boundsWeight;
 
     //MOVE UNIT
-    float3 moveVector = cohesion + avoidance;
+    float3 moveVector = cohesion + avoidance + alignment + bounds;
     moveVector = SmoothDamp(_flockUnitBuffer[id.x].forward, moveVector, currentVelocity, _smoothDamp, _Time);
     moveVector = Normalize(moveVector) * speed;
     float3 emptyVector = float3(0.0, 0.0, 0.0);

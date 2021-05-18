@@ -4,14 +4,15 @@ public class GPU_Flock : MonoBehaviour
 {
     private struct FlockUnit
     {
+        public Vector3 flockPosition;
         public Vector3 position;
         public Vector3 forward;
         public Quaternion rotation;
         public float speed;
     }
 
-    //one float, 2 vector3 and one vector4 with float values
-    private const int FLOCK_UNIT_SIZE = (1 + 3 * 2 + 4) * sizeof(float);
+    //one float, 3 vector3 and one vector4 with float values
+    private const int FLOCK_UNIT_SIZE = (1 + 3 * 3 + 4) * sizeof(float);
 
     private const int THREAD_GROUPS = 256;
 
@@ -106,6 +107,7 @@ public class GPU_Flock : MonoBehaviour
             randomVector = new Vector3(randomVector.x * spawnBounds.x, randomVector.y * spawnBounds.y, randomVector.z * spawnBounds.z);
             var spawnPosition = transform.position + randomVector;
             var rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
+            flockUnits[i].flockPosition = transform.position;
             flockUnits[i].position = spawnPosition;
             flockUnits[i].forward = transform.forward;
             flockUnits[i].rotation = rotation;
@@ -126,6 +128,10 @@ public class GPU_Flock : MonoBehaviour
         flockComputeShader.SetFloat("_maxSpeed", maxSpeed);
         flockComputeShader.SetFloat("_avoidanceDistance", avoidanceDistance);
         flockComputeShader.SetFloat("_avoidanceWeight", avoidanceWeight);
+        flockComputeShader.SetFloat("_alignmentDistance", alignmentDistance);
+        flockComputeShader.SetFloat("_alignmentWeight", alignmentWeight);
+        flockComputeShader.SetFloat("_boundsDistance", boundsDistance);
+        flockComputeShader.SetFloat("_boundsWeight", boundsWeight);
 
         //SEND DATA TO MATERIAL
         flockUnityMaterial.SetBuffer("_flockUnitBuffer", flockUnitBuffer);

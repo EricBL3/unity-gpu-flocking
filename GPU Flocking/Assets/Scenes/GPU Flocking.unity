@@ -446,7 +446,7 @@ MonoBehaviour:
   submeshIndex: 0
   flockUnityMaterial: {fileID: 2100000, guid: af5255dbd91db964794bf21e885f9942, type: 2}
   flockComputeShader: {fileID: 7200000, guid: f6ab08239c393cf4faa3917cc3a9eb27, type: 3}
-  flockSize: 1000
+  flockSize: 2000
   spawnBounds: {x: 10, y: 5, z: 10}
   FOVAngle: 270
   smoothDamp: 1
