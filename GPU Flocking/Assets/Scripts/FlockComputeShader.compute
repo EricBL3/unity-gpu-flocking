@@ -10,9 +10,10 @@ struct FlockUnit
 };
 
 float3 currentVelocity;
+float speed;
 
 RWStructuredBuffer<FlockUnit> _flockUnitBuffer;
-float _Time, _cohesionDistance, _FOVAngle, _cohesionWeight, _smoothDamp;
+float _Time, _cohesionDistance, _FOVAngle, _cohesionWeight, _smoothDamp, _minSpeed, _maxSpeed;
 uint _flockSize;
 
 bool IsInFOV(float3 position, uint3 id)
@@ -41,8 +42,13 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         {
             cohesionNeighbors++;
             cohesion += _flockUnitBuffer[i].position;
+            speed += _flockUnitBuffer[i].speed;
         }
     }
+
+    //CALCULATE SPEED
+    speed /= cohesionNeighbors;
+    speed = clamp(speed, _minSpeed, _maxSpeed);
 
     //CALCULATE COHESION
     cohesion /= cohesionNeighbors;
@@ -54,7 +60,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     //MOVE UNIT
     float3 moveVector = cohesion;
     moveVector = SmoothDamp(_flockUnitBuffer[id.x].forward, moveVector, currentVelocity, _smoothDamp, _Time);
-    moveVector = Normalize(moveVector) * _flockUnitBuffer[id.x].speed;
+    moveVector = Normalize(moveVector) * speed;
     float3 emptyVector = float3(0.0, 0.0, 0.0);
     if (VectorEquals(moveVector, emptyVector))
     {

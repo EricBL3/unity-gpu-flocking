@@ -122,6 +122,8 @@ public class GPU_Flock : MonoBehaviour
         flockComputeShader.SetFloat("_FOVAngle", FOVAngle);
         flockComputeShader.SetFloat("_cohesionWeight", cohesionWeight);
         flockComputeShader.SetFloat("_smoothDamp", smoothDamp);
+        flockComputeShader.SetFloat("_minSpeed", minSpeed);
+        flockComputeShader.SetFloat("_maxSpeed", maxSpeed);
 
         //SEND DATA TO MATERIAL
         flockUnityMaterial.SetBuffer("_flockUnitBuffer", flockUnitBuffer);
