@@ -1,0 +1,16 @@
+﻿#pragma kernel CSMain
+
+struct FlockUnit
+{
+    float3 position;
+    float4 rotation;
+    float speed;
+};
+
+RWStructuredBuffer<FlockUnit> flockUnitBuffer;
+
+[numthreads(256,1,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    flockUnitBuffer[id.x].position = flockUnitBuffer[id.x].position + flockUnitBuffer[id.x].speed;
+}
