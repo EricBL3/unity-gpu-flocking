@@ -5,12 +5,13 @@ public class GPU_Flock : MonoBehaviour
     private struct FlockUnit
     {
         public Vector3 position;
+        public Vector3 forward;
         public Quaternion rotation;
         public float speed;
     }
 
-    //one float, one vector3 and one vector4 with float values
-    private const int FLOCK_UNIT_SIZE = (1 + 3 + 4) * sizeof(float);
+    //one float, 2 vector3 and one vector4 with float values
+    private const int FLOCK_UNIT_SIZE = (1 + 3 * 2 + 4) * sizeof(float);
 
     private const int THREAD_GROUPS = 256;
 
@@ -106,6 +107,7 @@ public class GPU_Flock : MonoBehaviour
             var spawnPosition = transform.position + randomVector;
             var rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
             flockUnits[i].position = spawnPosition;
+            flockUnits[i].forward = transform.forward;
             flockUnits[i].rotation = rotation;
             flockUnits[i].speed = UnityEngine.Random.Range(minSpeed, maxSpeed);
         }
@@ -114,15 +116,24 @@ public class GPU_Flock : MonoBehaviour
 
         //SEND DATA TO COMPUTE SHADER
         computeKernelIndex = flockComputeShader.FindKernel("CSMain");
-        flockComputeShader.SetBuffer(computeKernelIndex, "flockUnitBuffer", flockUnitBuffer);
-        flockUnityMaterial.SetBuffer("flockUnitBuffer", flockUnitBuffer);
+        flockComputeShader.SetBuffer(computeKernelIndex, "_flockUnitBuffer", flockUnitBuffer);
+        flockComputeShader.SetInt("_flockSize", flockSize);
+        flockComputeShader.SetFloat("_cohesionDistance", cohesionDistance);
+        flockComputeShader.SetFloat("_FOVAngle", FOVAngle);
+        flockComputeShader.SetFloat("_cohesionWeight", cohesionWeight);
+        flockComputeShader.SetFloat("_smoothDamp", smoothDamp);
+
+        //SEND DATA TO MATERIAL
+        flockUnityMaterial.SetBuffer("_flockUnitBuffer", flockUnitBuffer);
     }
 
     private void Update()
     {
+        flockComputeShader.SetFloat("_Time", Time.deltaTime);
+
         //dispatch kernel
         int groups = Mathf.CeilToInt(flockSize / THREAD_GROUPS);
-        //flockComputeShader.Dispatch(computeKernelIndex, groups, 1, 1);
+        flockComputeShader.Dispatch(computeKernelIndex, groups, 1, 1);
         //render
         flockUnityMaterial.SetPass(0);
         Graphics.DrawMeshInstancedProcedural(flockUnityMesh, submeshIndex, flockUnityMaterial, 

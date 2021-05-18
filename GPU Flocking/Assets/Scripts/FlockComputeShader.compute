@@ -1,16 +1,66 @@
-﻿#pragma kernel CSMain
+﻿#include "Utilities.cginc"
+#pragma kernel CSMain
 
 struct FlockUnit
 {
     float3 position;
+    float3 forward;
     float4 rotation;
     float speed;
 };
 
-RWStructuredBuffer<FlockUnit> flockUnitBuffer;
+float3 currentVelocity;
+
+RWStructuredBuffer<FlockUnit> _flockUnitBuffer;
+float _Time, _cohesionDistance, _FOVAngle, _cohesionWeight, _smoothDamp;
+uint _flockSize;
+
+bool IsInFOV(float3 position, uint3 id)
+{
+    return Angle(_flockUnitBuffer[id.x].rotation, position - _flockUnitBuffer[id.x].position) <= _FOVAngle;
+}
 
 [numthreads(256,1,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    flockUnitBuffer[id.x].position = flockUnitBuffer[id.x].position + flockUnitBuffer[id.x].speed;
+    //COHESION, AVOIDANCE, ALIGNMENT 
+    float3 cohesion = float3(0.0, 0.0, 0.0);
+    float3 avoidance = float3(0.0, 0.0, 0.0);
+    float3 alignment = float3(0.0, 0.0, 0.0);
+
+    
+
+    float cohesionNeighbors = 0.0;
+
+    //CHECK NEIGHBORS
+    for (uint i = 0; i < _flockSize; i++)
+    {
+        float currentNeighborDistanceSqr = SqrMagnitude(_flockUnitBuffer[i].position - _flockUnitBuffer[id.x].position);
+        //COHESION NEIGHBORS
+        if (currentNeighborDistanceSqr <= _cohesionDistance * _cohesionDistance && IsInFOV(_flockUnitBuffer[i].position, id))
+        {
+            cohesionNeighbors++;
+            cohesion += _flockUnitBuffer[i].position;
+        }
+    }
+
+    //CALCULATE COHESION
+    cohesion /= cohesionNeighbors;
+    cohesion -= _flockUnitBuffer[id.x].position;
+    cohesion = Normalize(cohesion);
+    cohesion *= _cohesionWeight;
+
+
+    //MOVE UNIT
+    float3 moveVector = cohesion;
+    moveVector = SmoothDamp(_flockUnitBuffer[id.x].forward, moveVector, currentVelocity, _smoothDamp, _Time);
+    moveVector = Normalize(moveVector) * _flockUnitBuffer[id.x].speed;
+    float3 emptyVector = float3(0.0, 0.0, 0.0);
+    if (VectorEquals(moveVector, emptyVector))
+    {
+        moveVector = _flockUnitBuffer[id.x].forward;
+    }
+
+    _flockUnitBuffer[id.x].forward = moveVector;
+    _flockUnitBuffer[id.x].position += moveVector * _Time;
 }
