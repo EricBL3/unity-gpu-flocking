@@ -13,7 +13,7 @@ float3 currentVelocity;
 float speed;
 
 RWStructuredBuffer<FlockUnit> _flockUnitBuffer;
-float _Time, _cohesionDistance, _FOVAngle, _cohesionWeight, _smoothDamp, _minSpeed, _maxSpeed;
+float _Time, _cohesionDistance, _FOVAngle, _cohesionWeight, _smoothDamp, _minSpeed, _maxSpeed, _avoidanceDistance, _avoidanceWeight;
 uint _flockSize;
 
 bool IsInFOV(float3 position, uint3 id)
@@ -27,11 +27,12 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     //COHESION, AVOIDANCE, ALIGNMENT 
     float3 cohesion = float3(0.0, 0.0, 0.0);
     float3 avoidance = float3(0.0, 0.0, 0.0);
-    float3 alignment = float3(0.0, 0.0, 0.0);
+    float3 alignment = float3(0.0, 0.0, 1.0);
 
     
 
     float cohesionNeighbors = 0.0;
+    float avoidanceNeighbors = 0.0;
 
     //CHECK NEIGHBORS
     for (uint i = 0; i < _flockSize; i++)
@@ -43,6 +44,12 @@ void CSMain (uint3 id : SV_DispatchThreadID)
             cohesionNeighbors++;
             cohesion += _flockUnitBuffer[i].position;
             speed += _flockUnitBuffer[i].speed;
+        }
+        //AVOIDANCE NEIGHBORS
+        if (currentNeighborDistanceSqr <= _avoidanceDistance * _avoidanceDistance && IsInFOV(_flockUnitBuffer[i].position, id))
+        {
+            avoidanceNeighbors++;
+            avoidance += _flockUnitBuffer[id.x].position - _flockUnitBuffer[i].position;
         }
     }
 
@@ -56,9 +63,14 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     cohesion = Normalize(cohesion);
     cohesion *= _cohesionWeight;
 
+    //CALCULATE AVOIDANCE
+    avoidance /= avoidanceNeighbors++;
+    avoidance = Normalize(avoidance);
+    avoidance *= _avoidanceWeight;
+
 
     //MOVE UNIT
-    float3 moveVector = cohesion;
+    float3 moveVector = cohesion + avoidance;
     moveVector = SmoothDamp(_flockUnitBuffer[id.x].forward, moveVector, currentVelocity, _smoothDamp, _Time);
     moveVector = Normalize(moveVector) * speed;
     float3 emptyVector = float3(0.0, 0.0, 0.0);
