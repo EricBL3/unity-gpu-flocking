@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3523646879526433044
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3523646879526433034}
+  - component: {fileID: 3523646879526433047}
+  m_Layer: 0
+  m_Name: Flock GPU
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3523646879526433034
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3523646879526433044}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3.75389, y: 5.98, z: 0.61}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3523646879526433047
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3523646879526433044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 383cce469e2ed81459452dfbf967b734, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flockUnityMesh: {fileID: 6715375062900545627, guid: 9166169145709ff47b7909fb343c25a3,
+    type: 3}
+  submeshIndex: 0
+  flockUnityMaterial: {fileID: 2100000, guid: af5255dbd91db964794bf21e885f9942, type: 2}
+  flockComputeShader: {fileID: 7200000, guid: f6ab08239c393cf4faa3917cc3a9eb27, type: 3}
+  flockSize: 100
+  spawnBounds: {x: 10, y: 5, z: 10}
+  FOVAngle: 270
+  smoothDamp: 1
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 256
+  directionsToCheckWhenAvoidingObstacles:
+  - {x: 1, y: 0, z: 0}
+  - {x: -1, y: 0, z: 0}
+  - {x: 0, y: 1, z: 0}
+  - {x: 0, y: -1, z: 0}
+  _minSpeed: 2
+  _maxSpeed: 4
+  _cohesionDistance: 5
+  _avoidanceDistance: 2
+  _alignmentDistance: 2
+  _obstacleDistance: 6.86
+  _boundsDistance: 6.6
+  _cohesionWeight: 2.25
+  _avoidanceWeight: 3.78
+  _alignmentWeight: 3
+  _boundsWeight: 10
+  _obstacleWeight: 100
