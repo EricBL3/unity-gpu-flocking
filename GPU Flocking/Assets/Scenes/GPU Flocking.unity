@@ -446,7 +446,7 @@ MonoBehaviour:
   submeshIndex: 0
   flockUnityMaterial: {fileID: 2100000, guid: af5255dbd91db964794bf21e885f9942, type: 2}
   flockComputeShader: {fileID: 7200000, guid: f6ab08239c393cf4faa3917cc3a9eb27, type: 3}
-  flockSize: 2000
+  flockSize: 100
   spawnBounds: {x: 10, y: 5, z: 10}
   FOVAngle: 270
   smoothDamp: 1
@@ -464,7 +464,7 @@ MonoBehaviour:
   _avoidanceDistance: 2
   _alignmentDistance: 2
   _obstacleDistance: 6.86
-  _boundsDistance: 20
+  _boundsDistance: 6.6
   _cohesionWeight: 2.25
   _avoidanceWeight: 3.78
   _alignmentWeight: 3
@@ -478,7 +478,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4389032171569455753}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.75389, y: 6.37, z: 6.540357}
+  m_LocalPosition: {x: 3.75389, y: 5.98, z: 0.61}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}

@@ -6,13 +6,12 @@ public class GPU_Flock : MonoBehaviour
     {
         public Vector3 flockPosition;
         public Vector3 position;
-        public Vector3 forward;
-        public Quaternion rotation;
+        public Vector3 rotation;
         public float speed;
     }
 
     //one float, 3 vector3 and one vector4 with float values
-    private const int FLOCK_UNIT_SIZE = (1 + 3 * 3 + 4) * sizeof(float);
+    private const int FLOCK_UNIT_SIZE = (1 + 3 * 3) * sizeof(float);
 
     private const int THREAD_GROUPS = 256;
 
@@ -106,11 +105,10 @@ public class GPU_Flock : MonoBehaviour
             var randomVector = UnityEngine.Random.insideUnitSphere;
             randomVector = new Vector3(randomVector.x * spawnBounds.x, randomVector.y * spawnBounds.y, randomVector.z * spawnBounds.z);
             var spawnPosition = transform.position + randomVector;
-            var rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0, 360), 0);
+            var rotation = new Vector3(0, UnityEngine.Random.Range(0, 360), 0);
             flockUnits[i].flockPosition = transform.position;
             flockUnits[i].position = spawnPosition;
-            flockUnits[i].forward = transform.forward;
-            flockUnits[i].rotation = rotation;
+            flockUnits[i].rotation = Vector3.forward;
             flockUnits[i].speed = UnityEngine.Random.Range(minSpeed, maxSpeed);
         }
         flockUnitBuffer = new ComputeBuffer(flockSize, FLOCK_UNIT_SIZE);
@@ -143,11 +141,12 @@ public class GPU_Flock : MonoBehaviour
 
         //dispatch kernel
         int groups = Mathf.CeilToInt(flockSize / THREAD_GROUPS);
-        flockComputeShader.Dispatch(computeKernelIndex, groups, 1, 1);
+        flockComputeShader.Dispatch(computeKernelIndex, groups > 0 ? groups : 1, 1, 1);
+
         //render
         flockUnityMaterial.SetPass(0);
         Graphics.DrawMeshInstancedProcedural(flockUnityMesh, submeshIndex, flockUnityMaterial, 
-            new Bounds(transform.position, spawnBounds), flockSize);
+            new Bounds(transform.position, Vector3.one * 20f * boundsDistance), flockSize);
     }
 
     void OnDestroy()

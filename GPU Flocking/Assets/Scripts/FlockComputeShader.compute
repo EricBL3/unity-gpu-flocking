@@ -5,8 +5,7 @@ struct FlockUnit
 {
     float3 flockPosition;
     float3 position;
-    float3 forward;
-    float4 rotation;
+    float3 rotation;
     float speed;
 };
 
@@ -58,7 +57,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         if (currentNeighborDistanceSqr <= _alignmentDistance * _alignmentDistance && IsInFOV(_flockUnitBuffer[i].position, id))
         {
             alignmentNeighbors++;
-            alignment += _flockUnitBuffer[i].forward;
+            alignment += _flockUnitBuffer[i].rotation;
         }
     }
 
@@ -92,16 +91,18 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         bounds = Normalize(offsetToCenter);
     bounds *= _boundsWeight;
 
-    //MOVE UNIT
+    //MOVE AND ROTATE UNIT
     float3 moveVector = cohesion + avoidance + alignment + bounds;
-    moveVector = SmoothDamp(_flockUnitBuffer[id.x].forward, moveVector, currentVelocity, _smoothDamp, _Time);
+    moveVector = SmoothDamp(_flockUnitBuffer[id.x].rotation, moveVector, currentVelocity, _smoothDamp, _Time);
+
+    _flockUnitBuffer[id.x].rotation = moveVector;
+
     moveVector = Normalize(moveVector) * speed;
     float3 emptyVector = float3(0.0, 0.0, 0.0);
     if (VectorEquals(moveVector, emptyVector))
     {
-        moveVector = _flockUnitBuffer[id.x].forward;
+        moveVector = _flockUnitBuffer[id.x].rotation;
     }
 
-    _flockUnitBuffer[id.x].forward = moveVector;
     _flockUnitBuffer[id.x].position += moveVector * _Time;
 }
