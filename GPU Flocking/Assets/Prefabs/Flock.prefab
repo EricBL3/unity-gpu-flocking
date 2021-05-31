@@ -45,7 +45,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   flockUnityPrefab: {fileID: 760725066342677925, guid: 951436df18ceb484f818905a63ffc0fc,
     type: 3}
-  flockSize: 100
+  flockSize: 1
   spawnBounds: {x: 10, y: 5, z: 10}
   _minSpeed: 2
   _maxSpeed: 4
